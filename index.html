@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1f3a5f">
+<title>공덕교회 주차관리</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+  :root{
+    --navy:#1f3a5f; --navy2:#2c5282; --bg:#f4f6f9; --card:#fff; --line:#e3e8ef; --text:#1a202c; --sub:#64748b;
+    --green:#15803d; --green-bg:#dcfce7; --amber:#b45309; --amber-bg:#fef3c7; --red:#b91c1c; --red-bg:#fee2e2;
+    --blue:#1d4ed8; --blue-bg:#dbeafe; --gray-bg:#eef1f5; --r:14px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--bg);color:var(--text);font-family:Pretendard,-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;font-size:16px;-webkit-text-size-adjust:100%}
+  button,input,select,textarea{font:inherit;color:inherit}
+  header{background:var(--navy);color:#fff;padding:calc(14px + env(safe-area-inset-top)) 18px 14px;position:sticky;top:0;z-index:5}
+  header h1{margin:0;font-size:19px;font-weight:700;display:flex;align-items:center;gap:8px}
+  header h1 .p{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:7px;background:#fff;color:var(--navy);font-weight:800}
+  header .who{font-size:13px;opacity:.8;margin-top:2px}
+  .demo{background:#fde68a;color:#78350f;font-size:13px;text-align:center;padding:6px}
+  main{max-width:640px;margin:0 auto;padding:14px 14px calc(90px + env(safe-area-inset-bottom))}
+  .notice{background:var(--blue-bg);color:#1e3a8a;border-radius:var(--r);padding:11px 14px;font-size:14px;margin-bottom:12px;line-height:1.5}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px;margin-bottom:12px}
+  .card h2{font-size:17px;margin:0 0 12px}
+  .card h3{font-size:15px;margin:0 0 10px;color:var(--sub);font-weight:600}
+  label{display:block;font-size:14px;font-weight:600;margin:12px 0 6px;color:#334155}
+  label .opt{font-weight:400;color:var(--sub)}
+  input,select,textarea{width:100%;padding:12px 13px;border:1px solid #cbd5e1;border-radius:10px;background:#fff;font-size:16px;outline:none}
+  input:focus,select:focus,textarea:focus{border-color:var(--navy2);box-shadow:0 0 0 3px rgba(44,82,130,.15)}
+  .row{display:flex;gap:8px}.row>*{flex:1}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:0;border-radius:10px;padding:13px 16px;font-weight:700;cursor:pointer;background:var(--navy);color:#fff;width:100%;margin-top:16px;font-size:16px}
+  .btn:disabled{opacity:.5}
+  .btn.ghost{background:var(--gray-bg);color:var(--text)}
+  .btn.sm{width:auto;padding:8px 12px;font-size:14px;margin:0;border-radius:8px}
+  .btn.ok{background:var(--green)} .btn.no{background:var(--red-bg);color:var(--red)} .btn.in{background:var(--blue)}
+  .seg{display:flex;background:var(--gray-bg);border-radius:12px;padding:4px;margin-bottom:12px}
+  .seg button{flex:1;border:0;background:transparent;padding:10px;border-radius:9px;font-weight:600;color:var(--sub);cursor:pointer}
+  .seg button.on{background:#fff;color:var(--navy);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+  .check{display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--sub);margin-top:14px;line-height:1.5;font-weight:400}
+  .check input{width:20px;height:20px;flex:none;margin:0}
+  .item{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 0;border-top:1px solid var(--line)}
+  .item:first-of-type{border-top:0}
+  .plate{font-weight:800;font-size:17px;letter-spacing:.3px}
+  .meta{font-size:13px;color:var(--sub);margin-top:3px;line-height:1.5}
+  .badge{display:inline-block;font-size:12px;font-weight:700;padding:3px 9px;border-radius:99px;white-space:nowrap}
+  .s-신청{background:var(--amber-bg);color:var(--amber)} .s-대기{background:#ede9fe;color:#6d28d9}
+  .s-승인{background:var(--green-bg);color:var(--green)} .s-입차{background:var(--blue-bg);color:var(--blue)}
+  .s-반려{background:var(--red-bg);color:var(--red)} .s-취소{background:var(--gray-bg);color:var(--sub)}
+  .empty{color:var(--sub);text-align:center;padding:18px 0;font-size:14px}
+  nav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);display:flex;padding-bottom:env(safe-area-inset-bottom);z-index:5}
+  nav button{flex:1;border:0;background:none;padding:10px 0 9px;font-size:12px;color:var(--sub);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px}
+  nav button svg{width:23px;height:23px}
+  nav button.on{color:var(--navy);font-weight:700}
+  .sum{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-bottom:12px}
+  .sum .box{background:#fff;border:1px solid var(--line);border-radius:12px;padding:11px 12px;cursor:pointer}
+  .sum .box.on{border-color:var(--navy);box-shadow:0 0 0 2px rgba(31,58,95,.15)}
+  .sum .t{font-size:13px;font-weight:700}
+  .sum .n{font-size:22px;font-weight:800;margin:4px 0 2px}
+  .sum .n small{font-size:13px;color:var(--sub);font-weight:600}
+  .bar{height:6px;background:var(--gray-bg);border-radius:9px;overflow:hidden;margin:6px 0 4px}
+  .bar i{display:block;height:100%;background:var(--green)}
+  .bar i.full{background:var(--red)}
+  .sum .d{font-size:12px;color:var(--sub)}
+  .chips{display:flex;gap:6px;overflow-x:auto;margin-bottom:10px;padding-bottom:2px}
+  .chips button{border:1px solid var(--line);background:#fff;border-radius:99px;padding:7px 12px;font-size:13px;white-space:nowrap;cursor:pointer}
+  .chips button.on{background:var(--navy);color:#fff;border-color:var(--navy)}
+  .datebar{display:flex;gap:6px;align-items:center;margin-bottom:12px}
+  .datebar input{flex:1;text-align:center;font-weight:700}
+  .datebar .btn{width:48px;padding:12px 0;margin-top:0}
+  .acts{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+  a.tel{color:var(--navy2);font-weight:600;text-decoration:none}
+  #toast{position:fixed;left:50%;bottom:calc(88px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(20px);background:#111827;color:#fff;padding:11px 16px;border-radius:10px;font-size:14px;opacity:0;transition:.25s;pointer-events:none;max-width:90vw;z-index:20;text-align:center}
+  #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  #toast.err{background:var(--red)}
+  .loading{position:fixed;inset:0;background:rgba(255,255,255,.5);display:none;place-items:center;z-index:30}
+  .loading.show{display:grid}
+  .spin{width:34px;height:34px;border:3px solid #cbd5e1;border-top-color:var(--navy);border-radius:50%;animation:s .8s linear infinite}
+  @keyframes s{to{transform:rotate(360deg)}}
+  .modal{position:fixed;inset:0;background:rgba(15,23,42,.45);display:none;place-items:center;z-index:40;padding:20px}
+  .modal.show{display:grid}
+  .modal .box{background:#fff;border-radius:16px;padding:20px;width:100%;max-width:340px}
+  .modal p{margin:0 0 4px;font-size:16px;line-height:1.5;font-weight:600}
+  .modal .row .btn{margin-top:14px}
+  .hidden{display:none!important}
+  .muted{color:var(--sub);font-size:13px}
+  .link{background:none;border:0;color:var(--navy2);font-weight:600;cursor:pointer;padding:0;font-size:14px}
+</style>
+</head>
+<body>
+<div id="demoBar" class="demo hidden">데모 모드 · config.js에 API 주소를 넣으면 구글 시트와 연결됩니다</div>
+<header>
+  <h1><span class="p">P</span><span id="churchName">공덕교회</span> 주차관리</h1>
+  <div class="who" id="who">교인 차량 등록 · 주차 신청</div>
+</header>
+
+<main>
+  <div id="notice" class="notice hidden"></div>
+
+  <!-- ───── 주차 신청 탭 ───── -->
+  <section id="tab-apply">
+    <div id="authBox">
+      <div class="seg">
+        <button data-auth="login" class="on">로그인</button>
+        <button data-auth="register">처음이에요 (차량 등록)</button>
+      </div>
+
+      <form id="loginForm" class="card">
+        <h2>로그인</h2>
+        <label>휴대폰 번호</label>
+        <input name="phone" type="tel" inputmode="numeric" placeholder="010-0000-0000" autocomplete="tel" required>
+        <label>PIN (숫자 4~6자리)</label>
+        <input name="pin" type="password" inputmode="numeric" maxlength="6" placeholder="등록할 때 정한 PIN" required>
+        <button class="btn">로그인</button>
+        <p class="muted" style="margin:12px 0 0">PIN을 잊으셨다면 교회 사무실(관리자)에 문의해 주세요.</p>
+      </form>
+
+      <form id="registerForm" class="card hidden">
+        <h2>교인 차량 등록</h2>
+        <label>이름</label>
+        <input name="name" placeholder="홍길동" required>
+        <label>휴대폰 번호</label>
+        <input name="phone" type="tel" inputmode="numeric" placeholder="010-0000-0000" required>
+        <label>차량번호</label>
+        <input name="plate" placeholder="12가3456" required>
+        <div class="row">
+          <div><label>차종 <span class="opt">(선택)</span></label><input name="model" placeholder="쏘나타 / 흰색"></div>
+          <div><label>소속 <span class="opt">(선택)</span></label><input name="group" placeholder="1교구, 청년부"></div>
+        </div>
+        <div class="row">
+          <div><label>PIN 만들기</label><input name="pin" type="password" inputmode="numeric" maxlength="6" placeholder="숫자 4~6자리" required></div>
+          <div><label>PIN 확인</label><input name="pin2" type="password" inputmode="numeric" maxlength="6" required></div>
+        </div>
+        <label class="check"><input type="checkbox" name="agree">
+          <span>[필수] 개인정보 수집·이용 동의 — 이름, 휴대폰 번호, 차량번호를 교회 주차 관리(신청 확인, 차량 이동 연락) 목적에만 사용하며, 차량 삭제 요청 시 파기합니다.</span></label>
+        <button class="btn">등록하고 시작하기</button>
+      </form>
+    </div>
+
+    <div id="applyBox" class="hidden">
+      <form id="applyForm" class="card">
+        <h2>주차 신청</h2>
+        <div class="row">
+          <div><label>예배일</label><input name="date" type="date" required></div>
+          <div><label>예배</label><select name="service" required></select></div>
+        </div>
+        <label>차량</label>
+        <select name="plate" required></select>
+        <label>구분</label>
+        <select name="category"></select>
+        <label>요청 사항 <span class="opt">(선택)</span></label>
+        <input name="reason" maxlength="100" placeholder="예) 휠체어 사용, 찬양팀 봉사">
+        <button class="btn">신청하기</button>
+      </form>
+
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <h2 style="margin:0">내 신청 내역</h2>
+          <button class="link" id="refreshMine">새로고침</button>
+        </div>
+        <div id="myList" style="margin-top:8px"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───── 내 정보 탭 ───── -->
+  <section id="tab-me" class="hidden">
+    <div id="meNeedLogin" class="card empty">먼저 [주차 신청] 탭에서 로그인해 주세요.</div>
+    <div id="meBox" class="hidden">
+      <div class="card">
+        <h2 id="meName"></h2>
+        <div class="meta" id="meInfo"></div>
+      </div>
+      <div class="card">
+        <h2>내 차량</h2>
+        <div id="myVehicles"></div>
+      </div>
+      <form id="addVehicleForm" class="card">
+        <h2>차량 추가</h2>
+        <div class="row">
+          <div><label>차량번호</label><input name="plate" placeholder="12가3456" required></div>
+          <div><label>차종 <span class="opt">(선택)</span></label><input name="model"></div>
+        </div>
+        <button class="btn ghost">추가</button>
+      </form>
+      <button class="btn ghost" id="logout">로그아웃</button>
+    </div>
+  </section>
+
+  <!-- ───── 관리자 탭 ───── -->
+  <section id="tab-admin" class="hidden">
+    <form id="adminLoginForm" class="card">
+      <h2>관리자 로그인</h2>
+      <label>관리자 이름</label>
+      <input name="name" placeholder="처리 기록에 남는 이름" required>
+      <label>관리자 비밀번호</label>
+      <input name="password" type="password" required>
+      <button class="btn">로그인</button>
+    </form>
+
+    <div id="adminBox" class="hidden">
+      <div class="seg">
+        <button data-admin="list" class="on">신청 관리</button>
+        <button data-admin="search">차량 조회</button>
+        <button data-admin="add">대리 등록</button>
+      </div>
+
+      <div id="adm-list">
+        <div class="datebar">
+          <button class="btn ghost" id="prevDay" type="button">◀</button>
+          <input type="date" id="admDate">
+          <button class="btn ghost" id="nextDay" type="button">▶</button>
+        </div>
+        <div class="sum" id="admSummary"></div>
+        <div class="chips" id="admStatus"></div>
+        <div class="card"><div id="admList"></div></div>
+      </div>
+
+      <div id="adm-search" class="hidden">
+        <form id="searchForm" class="card">
+          <h2>차량 조회</h2>
+          <p class="muted" style="margin:0">차량번호 뒷자리 4개, 이름, 전화번호 일부로 찾을 수 있습니다. 차량 이동 요청 시 바로 전화하세요.</p>
+          <div class="row" style="margin-top:12px">
+            <input name="q" placeholder="예) 3456" required style="flex:3">
+            <button class="btn sm" style="flex:1">조회</button>
+          </div>
+        </form>
+        <div class="card"><div id="searchList" class="empty">검색어를 입력하세요.</div></div>
+      </div>
+
+      <form id="adm-add" class="card hidden">
+        <h2>대리 등록 · 현장 입차</h2>
+        <p class="muted" style="margin:0">전화 요청이나 미등록 차량을 관리자가 직접 기록합니다.</p>
+        <div class="row">
+          <div><label>예배일</label><input name="date" type="date" required></div>
+          <div><label>예배</label><select name="service"></select></div>
+        </div>
+        <label>차량번호</label>
+        <input name="plate" placeholder="12가3456" required>
+        <div class="row">
+          <div><label>이름 <span class="opt">(미등록 시)</span></label><input name="name"></div>
+          <div><label>연락처 <span class="opt">(미등록 시)</span></label><input name="phone" type="tel" inputmode="numeric"></div>
+        </div>
+        <div class="row">
+          <div><label>구분</label><select name="category"></select></div>
+          <div><label>상태</label><select name="status"><option>승인</option><option>입차</option><option>신청</option></select></div>
+        </div>
+        <label>메모 <span class="opt">(선택)</span></label>
+        <input name="reason" maxlength="100">
+        <button class="btn">기록하기</button>
+      </form>
+
+      <button class="btn ghost" id="adminLogout">관리자 로그아웃</button>
+    </div>
+  </section>
+</main>
+
+<nav>
+  <button data-tab="apply" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M9 17V7h4a3 3 0 0 1 0 6H9"/></svg>주차 신청</button>
+  <button data-tab="me"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>내 정보</button>
+  <button data-tab="admin"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg>관리자</button>
+</nav>
+
+<div id="toast"></div>
+<div class="modal" id="modal"><div class="box"><p id="modalMsg"></p><div class="row"><button class="btn ghost" id="modalNo">아니요</button><button class="btn" id="modalYes">확인</button></div></div></div>
+<div class="loading" id="loading"><div class="spin"></div></div>
+
+<script src="config.js"></script>
+<script src="demo.js"></script>
+<script>
+(() => {
+  const $ = s => document.querySelector(s);
+  const $$ = s => [...document.querySelectorAll(s)];
+  const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const fmtPhone = p => String(p||'').replace(/^(\d{3})(\d{3,4})(\d{4})$/, '$1-$2-$3');
+  const WEEK = ['일','월','화','수','목','금','토'];
+  const fmtDate = s => { if (!s) return ''; const d = new Date(s+'T12:00:00'); return `${d.getMonth()+1}/${d.getDate()}(${WEEK[d.getDay()]})`; };
+  const pad = n => String(n).padStart(2,'0');
+  const ymd = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+  const addDays = (s,n) => { const d = new Date(s+'T12:00:00'); d.setDate(d.getDate()+n); return ymd(d); };
+  const nextSunday = () => { const d = new Date(); d.setDate(d.getDate() + ((7-d.getDay())%7)); return ymd(d); };
+
+  const LS = {
+    get(k){ try { return JSON.parse(localStorage.getItem('gdp_'+k)); } catch(e){ return null; } },
+    set(k,v){ try { v==null ? localStorage.removeItem('gdp_'+k) : localStorage.setItem('gdp_'+k, JSON.stringify(v)); } catch(e){} },
+  };
+
+  const DEMO = !window.API_URL;
+  if (DEMO) $('#demoBar').classList.remove('hidden');
+
+  let busy = 0;
+  async function api(action, data = {}) {
+    busy++; $('#loading').classList.add('show');
+    try {
+      if (DEMO) return await window.DemoAPI(action, data);
+      const res = await fetch(window.API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ action, ...data }),
+      });
+      const j = await res.json();
+      if (!j.ok) throw new Error(j.error || '오류가 발생했습니다.');
+      return j.data;
+    } catch (e) {
+      if (e instanceof TypeError) throw new Error('서버에 연결할 수 없습니다. 인터넷 연결을 확인하세요.');
+      throw e;
+    } finally {
+      if (--busy === 0) $('#loading').classList.remove('show');
+    }
+  }
+
+  let tt;
+  function toast(msg, err) {
+    const t = $('#toast'); t.textContent = msg; t.className = 'show' + (err ? ' err' : '');
+    clearTimeout(tt); tt = setTimeout(() => t.className = '', 2600);
+  }
+  const guard = fn => async (...a) => { try { await fn(...a); } catch (e) { toast(e.message, true); if (/로그인/.test(e.message) && /만료|올바르지|필요/.test(e.message)) handleExpired(e.message); } };
+  function ask(msg) {
+    return new Promise(res => {
+      $('#modalMsg').textContent = msg; $('#modal').classList.add('show');
+      const done = v => { $('#modal').classList.remove('show'); $('#modalYes').onclick = $('#modalNo').onclick = null; res(v); };
+      $('#modalYes').onclick = () => done(true); $('#modalNo').onclick = () => done(false);
+    });
+  }
+  const formData = f => Object.fromEntries(new FormData(f).entries());
+
+  const S = { cfg: null, member: LS.get('member'), admin: LS.get('admin'), adminStatus: '전체', adminService: null, adminData: null };
+
+  function handleExpired() {
+    if (S.adminTab) { S.admin = null; LS.set('admin', null); renderAdmin(); }
+    else { S.member = null; LS.set('member', null); renderMember(); }
+  }
+
+  /* ───── 탭 ───── */
+  function showTab(name) {
+    S.adminTab = name === 'admin';
+    $$('nav button').forEach(b => b.classList.toggle('on', b.dataset.tab === name));
+    ['apply','me','admin'].forEach(t => $('#tab-'+t).classList.toggle('hidden', t !== name));
+    if (name === 'admin' && S.admin) loadAdmin();
+    window.scrollTo(0, 0);
+  }
+  $$('nav button').forEach(b => b.onclick = () => showTab(b.dataset.tab));
+
+  $$('[data-auth]').forEach(b => b.onclick = () => {
+    $$('[data-auth]').forEach(x => x.classList.toggle('on', x === b));
+    $('#loginForm').classList.toggle('hidden', b.dataset.auth !== 'login');
+    $('#registerForm').classList.toggle('hidden', b.dataset.auth !== 'register');
+  });
+
+  /* ───── 설정 ───── */
+  function fillSelect(sel, items, selected) {
+    sel.innerHTML = items.map(x => `<option ${x===selected?'selected':''}>${esc(x)}</option>`).join('');
+  }
+  async function loadConfig() {
+    S.cfg = await api('config');
+    $('#churchName').textContent = S.cfg.church;
+    document.title = S.cfg.church + ' 주차관리';
+    if (S.cfg.notice) { $('#notice').textContent = S.cfg.notice; $('#notice').classList.remove('hidden'); }
+    const f = $('#applyForm');
+    fillSelect(f.service, S.cfg.services);
+    fillSelect(f.category, S.cfg.categories, '일반');
+    f.date.value = nextSunday();
+    f.date.min = S.cfg.today; f.date.max = addDays(S.cfg.today, S.cfg.daysAhead);
+    const a = $('#adm-add');
+    fillSelect(a.service, S.cfg.services);
+    fillSelect(a.category, S.cfg.categories, '일반');
+  }
+
+  /* ───── 교인 ───── */
+  function setMember(m) {
+    const { requests, ...rest } = m;
+    S.member = { ...(S.member||{}), ...rest };
+    LS.set('member', S.member);
+    renderMember();
+  }
+  function renderMember() {
+    const m = S.member;
+    $('#authBox').classList.toggle('hidden', !!m);
+    $('#applyBox').classList.toggle('hidden', !m);
+    $('#meNeedLogin').classList.toggle('hidden', !!m);
+    $('#meBox').classList.toggle('hidden', !m);
+    $('#who').textContent = m ? `${m.name}님, 평안하세요` : '교인 차량 등록 · 주차 신청';
+    if (!m) return;
+    fillSelect($('#applyForm').plate, m.vehicles.map(v => v.plate));
+    $('#meName').textContent = m.name + '님';
+    $('#meInfo').innerHTML = `${esc(fmtPhone(m.phone))}${m.group ? ' · ' + esc(m.group) : ''}`;
+    $('#myVehicles').innerHTML = m.vehicles.map(v => `
+      <div class="item"><div><div class="plate">${esc(v.plate)}</div><div class="meta">${esc(v.model||'')}</div></div>
+      ${m.vehicles.length > 1 ? `<button class="btn sm no" data-del="${esc(v.plate)}">삭제</button>` : ''}</div>`).join('');
+  }
+  function renderMine(list) {
+    $('#myList').innerHTML = list.length ? list.map(r => `
+      <div class="item">
+        <div>
+          <div><span class="plate">${esc(fmtDate(r.date))}</span> <b>${esc(r.service)}</b></div>
+          <div class="meta">${esc(r.plate)} · ${esc(r.category)}${r.reason ? ' · ' + esc(r.reason) : ''}${r.inTime ? ' · 입차 ' + esc(r.inTime) : ''}</div>
+        </div>
+        <div class="acts" style="flex-direction:column;align-items:flex-end">
+          <span class="badge s-${esc(r.status)}">${esc(r.status)}</span>
+          ${['신청','대기','승인'].includes(r.status) && r.date >= S.cfg.today ? `<button class="link" data-cancel="${esc(r.id)}">취소</button>` : ''}
+        </div>
+      </div>`).join('') : '<div class="empty">신청 내역이 없습니다.</div>';
+  }
+
+  $('#loginForm').onsubmit = guard(async e => {
+    e.preventDefault();
+    const d = formData(e.target);
+    setMember(await api('login', d));
+    e.target.reset();
+    toast('로그인되었습니다.');
+    renderMine(await api('myRequests', { token: S.member.token }));
+  });
+
+  $('#registerForm').onsubmit = guard(async e => {
+    e.preventDefault();
+    const d = formData(e.target);
+    if (d.pin !== d.pin2) throw new Error('PIN이 서로 다릅니다.');
+    d.agree = !!d.agree;
+    setMember(await api('register', d));
+    e.target.reset();
+    toast('차량이 등록되었습니다. 이제 주차를 신청하세요.');
+    renderMine([]);
+  });
+
+  $('#applyForm').onsubmit = guard(async e => {
+    e.preventDefault();
+    const d = formData(e.target);
+    const r = await api('apply', { token: S.member.token, ...d });
+    renderMine(r.requests);
+    e.target.reason.value = '';
+    toast(r.status === '승인' ? '신청이 승인되었습니다.' : r.status === '대기' ? '주차면이 차서 대기로 접수되었습니다.' : '신청되었습니다. 승인되면 내역에 표시됩니다.');
+  });
+
+  $('#myList').onclick = guard(async e => {
+    const id = e.target.dataset.cancel; if (!id) return;
+    if (!await ask('이 신청을 취소할까요?')) return;
+    renderMine(await api('cancel', { token: S.member.token, id }));
+    toast('취소되었습니다.');
+  });
+  $('#refreshMine').onclick = guard(async () => renderMine(await api('myRequests', { token: S.member.token })));
+
+  $('#myVehicles').onclick = guard(async e => {
+    const plate = e.target.dataset.del; if (!plate) return;
+    if (!await ask(plate + ' 차량을 삭제할까요?')) return;
+    setMember(await api('removeVehicle', { token: S.member.token, plate }));
+    toast('삭제되었습니다.');
+  });
+  $('#addVehicleForm').onsubmit = guard(async e => {
+    e.preventDefault();
+    setMember(await api('addVehicle', { token: S.member.token, ...formData(e.target) }));
+    e.target.reset(); toast('차량이 추가되었습니다.');
+  });
+  $('#logout').onclick = () => { S.member = null; LS.set('member', null); renderMember(); showTab('apply'); };
+
+  /* ───── 관리자 ───── */
+  function renderAdmin() {
+    $('#adminLoginForm').classList.toggle('hidden', !!S.admin);
+    $('#adminBox').classList.toggle('hidden', !S.admin);
+  }
+  $('#adminLoginForm').onsubmit = guard(async e => {
+    e.preventDefault();
+    S.admin = await api('adminLogin', formData(e.target));
+    LS.set('admin', S.admin); e.target.password.value = '';
+    renderAdmin(); loadAdmin();
+  });
+  $('#adminLogout').onclick = () => { S.admin = null; LS.set('admin', null); renderAdmin(); };
+
+  $$('[data-admin]').forEach(b => b.onclick = () => {
+    $$('[data-admin]').forEach(x => x.classList.toggle('on', x === b));
+    ['list','search','add'].forEach(t => $('#adm-'+t).classList.toggle('hidden', t !== b.dataset.admin));
+  });
+
+  const admDate = $('#admDate');
+  admDate.value = nextSunday();
+  admDate.onchange = () => loadAdmin();
+  $('#prevDay').onclick = () => { admDate.value = addDays(admDate.value, -1); loadAdmin(); };
+  $('#nextDay').onclick = () => { admDate.value = addDays(admDate.value, 1); loadAdmin(); };
+
+  const loadAdmin = guard(async () => {
+    $('#adm-add').date.value = admDate.value;
+    renderAdminData(await api('adminList', { token: S.admin.token, date: admDate.value }));
+  });
+
+  function renderAdminData(d) {
+    S.adminData = d;
+    $('#admSummary').innerHTML = d.summary.map(s => {
+      const used = s.승인 + s.입차, pct = s.capacity ? Math.min(100, used / s.capacity * 100) : 0;
+      return `<div class="box ${S.adminService===s.service?'on':''}" data-svc="${esc(s.service)}">
+        <div class="t">${esc(s.service)}</div>
+        <div class="n">${used}<small> / ${s.capacity}</small></div>
+        <div class="bar"><i class="${used>=s.capacity?'full':''}" style="width:${pct}%"></i></div>
+        <div class="d">승인 ${s.승인} · 입차 ${s.입차} · 미처리 ${s.신청 + s.대기}</div></div>`;
+    }).join('');
+    const statuses = ['전체','신청','대기','승인','입차','반려','취소'];
+    $('#admStatus').innerHTML = statuses.map(st => {
+      const n = st === '전체' ? d.list.length : d.list.filter(x => x.status === st).length;
+      return `<button class="${S.adminStatus===st?'on':''}" data-st="${st}">${st} ${n}</button>`;
+    }).join('');
+    const order = { 신청:0, 대기:1, 승인:2, 입차:3, 반려:4, 취소:5 };
+    const list = d.list
+      .filter(x => S.adminStatus === '전체' || x.status === S.adminStatus)
+      .filter(x => !S.adminService || x.service === S.adminService)
+      .sort((a,b) => (a.service.localeCompare(b.service)) || (order[a.status]-order[b.status]) || a.createdAt.localeCompare(b.createdAt));
+    $('#admList').innerHTML = list.length ? list.map(r => {
+      const acts = {
+        '신청': [['승인','ok'],['반려','no']], '대기': [['승인','ok'],['반려','no']],
+        '승인': [['입차','in'],['취소','no']], '입차': [['승인','ghost','입차 취소']],
+        '반려': [['신청','ghost','되돌리기']], '취소': [['신청','ghost','되돌리기']],
+      }[r.status] || [];
+      return `<div class="item">
+        <div style="min-width:0">
+          <div><span class="plate">${esc(r.plate)}</span> <span class="badge s-${esc(r.status)}">${esc(r.status)}</span></div>
+          <div class="meta">${esc(r.service)} · ${esc(r.name)} · ${r.phone ? `<a class="tel" href="tel:${esc(r.phone)}">${esc(fmtPhone(r.phone))}</a>` : '연락처 없음'}</div>
+          <div class="meta">${esc(r.category)}${r.reason ? ' · ' + esc(r.reason) : ''}${r.inTime ? ' · 입차 ' + esc(r.inTime) : ''}${r.by ? ' · 처리 ' + esc(r.by) : ''}</div>
+        </div>
+        <div class="acts">${acts.map(([st,cls,label]) => `<button class="btn sm ${cls}" data-id="${esc(r.id)}" data-to="${st}">${label||st}</button>`).join('')}</div>
+      </div>`;
+    }).join('') : '<div class="empty">해당하는 신청이 없습니다.</div>';
+  }
+
+  $('#admSummary').onclick = e => {
+    const b = e.target.closest('[data-svc]'); if (!b) return;
+    S.adminService = S.adminService === b.dataset.svc ? null : b.dataset.svc;
+    renderAdminData(S.adminData);
+  };
+  $('#admStatus').onclick = e => {
+    const st = e.target.dataset.st; if (!st) return;
+    S.adminStatus = st; renderAdminData(S.adminData);
+  };
+  $('#admList').onclick = guard(async e => {
+    const b = e.target.closest('[data-to]'); if (!b) return;
+    const to = b.dataset.to;
+    if (to === '승인' && S.adminData) {
+      const r = S.adminData.list.find(x => x.id === b.dataset.id);
+      const s = r && S.adminData.summary.find(x => x.service === r.service);
+      if (s && r.status !== '입차' && s.승인 + s.입차 >= s.capacity && !await ask('주차면이 모두 찼습니다. 그래도 승인할까요?')) return;
+    }
+    renderAdminData(await api('adminSet', { token: S.admin.token, id: b.dataset.id, status: to }));
+    toast(`${to} 처리되었습니다.`);
+  });
+
+  $('#searchForm').onsubmit = guard(async e => {
+    e.preventDefault();
+    const list = await api('adminVehicles', { token: S.admin.token, q: e.target.q.value });
+    $('#searchList').className = '';
+    $('#searchList').innerHTML = list.length ? list.map(v => `
+      <div class="item"><div>
+        <div class="plate">${esc(v.plate)}</div>
+        <div class="meta">${esc(v.name)}${v.group ? ' · ' + esc(v.group) : ''}${v.model ? ' · ' + esc(v.model) : ''}</div>
+      </div><a class="btn sm in" href="tel:${esc(v.phone)}">${esc(fmtPhone(v.phone))}</a></div>`).join('')
+      : '<div class="empty">찾는 차량이 없습니다.</div>';
+  });
+
+  $('#adm-add').onsubmit = guard(async e => {
+    e.preventDefault();
+    const d = formData(e.target);
+    renderAdminData(await api('adminCreate', { token: S.admin.token, ...d }));
+    admDate.value = d.date;
+    ['plate','name','phone','reason'].forEach(k => e.target[k].value = '');
+    toast('기록되었습니다.');
+    $('[data-admin="list"]').click();
+  });
+
+  /* ───── 시작 ───── */
+  guard(async () => {
+    await loadConfig();
+    renderMember(); renderAdmin();
+    if (S.member) {
+      setMember(await api('me', { token: S.member.token }));
+      renderMine(await api('myRequests', { token: S.member.token }));
+    }
+  })();
+})();
+</script>
+</body>
+</html>
